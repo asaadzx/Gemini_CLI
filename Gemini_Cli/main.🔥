@@ -1,0 +1,65 @@
+import os
+from sys import exit
+
+# Console display handler
+struct Console:
+    fn __init__(mut self):
+        pass
+        
+    fn print(self, message: String):
+        print(message)
+    
+    fn print_separator(self):
+        print("----------------------------------------")
+    
+    fn print_welcome(self):
+        self.print_separator()
+        self.print("🌌 Gemini AI Chat Interface")
+        self.print("Type 'exit' to quit, 'help' for commands")
+        self.print_separator()
+
+# Client initialization
+fn initialize_client() -> String:
+    var api_key = os.getenv("GOOGLE_API_KEY")
+    if api_key == "":
+        print("Error: No API key found in environment.")
+        print("Please set GOOGLE_API_KEY environment variable.")
+        print("For now, using default key for demo purposes.")
+        api_key = "AIzaSyCyJ4muMkhKu6l1vLFCFYFdku6bz3WeTSo"
+    return api_key
+
+# Gemini API connection
+fn genai_connect(model: String, api_key: String, message: String) -> String:
+    # In production, replace this with actual API call to Gemini
+    return "This is where the real Gemini API would respond to: " + message
+
+# Chat interface
+fn chat_loop(model: String, api_key: String) raises:
+    var console = Console()
+    console.print_welcome()
+    
+    while True:
+        var user_input = input("You: ")
+        
+        # Command handling
+        if user_input.lower() == "exit":
+            console.print("Goodbye! Thanks for using Gemini Chat.")
+            break
+        if user_input.lower() == "help":
+            console.print("Available commands:")
+            console.print("  exit - Exit the application")
+            console.print("  help - Show this help message")
+            continue
+        if user_input.strip() == "":
+            continue
+            
+        # Get response from Gemini
+        var response = genai_connect(model, api_key, user_input)
+        console.print_separator()
+        console.print("Gemini: " + response)
+        console.print_separator()
+
+fn main() raises:
+    var model = "gemini-2.0-flash"  # Use the production model
+    var api_key = initialize_client()
+    chat_loop(model, api_key)
