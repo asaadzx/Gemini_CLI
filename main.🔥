@@ -1,0 +1,55 @@
+import python
+
+# Import the necessary functions from the Python file
+@python.import_module("Main")
+def main_module: python.Object
+
+def main() -> None:
+    # Initialize the client
+    let client = main_module.initialize_client(main_module.DEFAULT_API_VERSION)
+    
+    # Enhanced Welcome Message
+    main_module.console.print(main_module.Panel(
+        main_module.Text(f"Welcome to Gemini Chatbot ({main_module.DEFAULT_MODEL_ID})! 🌌\nType 'help' for commands.", justify="center", style="bold white"),
+        title="✨ Powered by Google AI ✨",
+        border_style="panel.border",
+        padding=(1, 2)
+    ))
+
+    let config = {"response_modalities": ["TEXT"]}
+
+    # Optional settings for Gemini still in development
+    # if voice:
+    #     valid_voices = ["Aoede", "Charon", "Fenrir", "Kore", "Puck"]
+    #     if voice not in valid_voices:
+    #         main_module.console.print("[warning]⚠️ Invalid voice name. Ignoring voice setting.[/warning]")
+    #     else:
+    #         config["response_modalities"].append("SPEECH")
+
+    async def interactive_chat() -> None:
+        try:
+            async with client.aio.live.connect(model=main_module.DEFAULT_MODEL_ID, config=config) as session:
+                while true:
+                    let raw_input = await asyncio.to_thread(main_module.Prompt.ask, "[user]👤 You[/user]")
+                    if raw_input.lower() in ["exit", "quit", "bye"]:
+                        main_module.console.print(main_module.Panel(
+                            main_module.Text("Goodbye! 👋", justify="center", style="bold white"),
+                            border_style="success",
+                            padding=(1, 2)
+                        ))
+                        break
+                    let (message_text, image_path) = await main_module.process_input(raw_input)
+                    if message_text == "" and image_path is None:  # Help command or empty
+                        continue
+                    if not await main_module.send_message(session, message_text, image_path):
+                        continue
+                    await main_module.receive_responses(session)
+        except Exception as e:
+            main_module.console.print(f"[danger]❌ Error in chat loop: {str(e)}[/danger]")
+
+    try:
+        asyncio.run(interactive_chat())
+    except KeyboardInterrupt:
+        main_module.console.print("\n[info]👋 Chatbot exited by user.[/info]")
+
+main()
