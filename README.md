@@ -80,8 +80,6 @@ python Main.py --model gemini-2.0-flash-exp --api-version v1alpha
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ```text
 MIT License
 
